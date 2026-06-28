@@ -1,0 +1,22 @@
+{
+  "name": "Monitor Postural Infantil",
+  "short_name": "Monitor",
+  "description": "Sistema de monitoreo postural y visual para niños",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0A1628",
+  "theme_color": "#0A1628",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

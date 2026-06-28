@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0A1628">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Monitor Postural</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/estilos.css">
+  <style>
+    /* ---- Estilos adicionales para login/registro ---- */
+    .pantalla-auth {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px 20px;
+      background: var(--fondo-base);
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .auth-logo-titulo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--texto-dato);
+      letter-spacing: -0.02em;
+    }
+    .auth-logo-sub {
+      font-size: 0.8rem;
+      color: var(--texto-secundario);
+      margin-top: 4px;
+    }
+    .auth-tarjeta {
+      background: var(--fondo-tarjeta);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio-grande);
+      padding: 24px 20px;
+      margin-bottom: 14px;
+    }
+    .auth-titulo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--texto-dato);
+      margin-bottom: 4px;
+    }
+    .auth-desc {
+      font-size: 0.8rem;
+      color: var(--texto-secundario);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .campo label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--texto-secundario);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .campo input, .campo select {
+      background: var(--fondo-elevado);
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      color: var(--texto-dato);
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 12px 14px;
+      -webkit-appearance: none;
+    }
+    .campo input:focus, .campo select:focus {
+      outline: 2px solid var(--verde);
+      outline-offset: 1px;
+    }
+    .campo input::placeholder { color: var(--texto-secundario); }
+    .enlace-cambio {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--texto-secundario);
+      margin-top: 8px;
+    }
+    .enlace-cambio button {
+      background: none;
+      border: none;
+      color: var(--verde);
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    /* Codigo grande de vinculacion */
+    .codigo-grande {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: var(--verde);
+      text-align: center;
+      background: var(--verde-suave);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Dashboard tutor */
+    .nino-card {
+      background: var(--fondo-tarjeta);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .nino-card-titulo {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--texto-dato);
+      margin-bottom: 2px;
+    }
+    .nino-card-sub {
+      font-size: 0.72rem;
+      color: var(--texto-secundario);
+      margin-bottom: 10px;
+    }
+    .nino-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .nino-stat {
+      text-align: center;
+      background: var(--fondo-elevado);
+      border-radius: 8px;
+      padding: 8px 4px;
+    }
+    .nino-stat-val {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--texto-dato);
+    }
+    .nino-stat-lbl {
+      font-size: 0.6rem;
+      color: var(--texto-secundario);
+      text-transform: uppercase;
+    }
+    /* Error inline */
+    .error-msg {
+      font-size: 0.8rem;
+      color: var(--rojo);
+      background: var(--rojo-suave);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+    /* Cargando */
+    .cargando-txt {
+      text-align: center;
+      color: var(--texto-secundario);
+      font-size: 0.85rem;
+      padding: 24px;
+    }
+    /* Tabs de modo auth */
+    .tabs-auth {
+      display: flex;
+      background: var(--fondo-elevado);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+      gap: 4px;
+    }
+    .tab-auth-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--texto-secundario);
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-auth-btn.activo {
+      background: var(--fondo-tarjeta);
+      color: var(--texto-dato);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== PANTALLA DE AUTENTICACION (fuera del layout principal) ===== -->
+<div id="pantalla-auth" class="pantalla-auth">
+  <div class="auth-logo">
+    <div class="auth-logo-titulo">Monitor Postural y Visual</div>
+    <div class="auth-logo-sub">Sistema de monitoreo para niños</div>
+  </div>
+
+  <div class="auth-tarjeta">
+    <!-- Tabs -->
+    <div class="tabs-auth">
+     <button class="tab-auth-btn activo" id="tab-btn-nino">Soy un niño</button>
+     <button class="tab-auth-btn"        id="tab-btn-tutor">Soy tutor</button>
+    </div>
+
+    <!-- === TAB NINO === -->
+    <div id="tab-nino">
+      <div class="auth-titulo">Ingresar con código</div>
+      <div class="auth-desc">Ingrese el código de vinculación proporcionado por su tutor.</div>
+      <div class="error-msg" id="error-nino"></div>
+      <div class="campo">
+        <label>Código de vinculación</label>
+        <input type="text" id="input-codigo" placeholder="Ejemplo: AB3X7K" maxlength="6"
+          style="text-transform:uppercase;letter-spacing:0.15em;font-size:1.3rem;text-align:center">
+      </div>
+      <div class="campo">
+        <label>Tu edad (en años)</label>
+        <input type="number" id="input-edad-nino" placeholder="Ejemplo: 10" min="4" max="17">
+      </div>
+      <div class="campo">
+        <label>Sexo</label>
+        <select id="input-sexo-nino">
+          <option value="" selected disabled>Seleccionar</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+        </select>
+      </div>
+      <button class="btn-accion btn-primario" id="btn-vincular" style="margin-bottom:0"></button>
+        Comenzar
+      </button>
+    </div>
+
+    <!-- === TAB TUTOR === -->
+    <div id="tab-tutor" style="display:none">
+      <div id="sub-login-tutor">
+        <div class="auth-titulo">Acceder como tutor</div>
+        <div class="auth-desc">Ingrese su correo y contraseña para ver el historial del niño.</div>
+        <div class="error-msg" id="error-tutor"></div>
+        <div class="campo">
+          <label>Correo</label>
+          <input type="email" id="input-correo-login" placeholder="tu@correo.com">
+        </div>
+        <div class="campo">
+          <label>Contraseña</label>
+          <input type="password" id="input-pass-login" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button class="btn-accion btn-primario" id="btn-login-tutor" style="margin-bottom:10px"></button>
+          Entrar
+        </button>
+        <div class="enlace-cambio">
+          ¿No tienes cuenta? <button id="btn-ir-registro">Crear cuenta de tutor</button>
+        </div>
+      </div>
+
+      <div id="sub-registro-tutor" style="display:none">
+        <div class="auth-titulo">Crear cuenta de tutor</div>
+        <div class="auth-desc">Crea tu cuenta. Al terminar obtienes un código para darle al niño.</div>
+        <div class="error-msg" id="error-registro"></div>
+        <div class="campo">
+          <label>Correo</label>
+          <input type="email" id="input-correo-reg" placeholder="tu@correo.com">
+        </div>
+        <div class="campo">
+          <label>Contraseña</label>
+          <input type="password" id="input-pass-reg" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button class="btn-accion btn-primario" id="btn-registro-tutor" style="margin-bottom:10px"></button>
+          Crear cuenta
+        </button>
+        <div class="enlace-cambio">
+          ¿Ya tienes cuenta? <button id="btn-ir-login">Entrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LAYOUT PRINCIPAL (visible tras autenticarse) ===== -->
+<div id="app-principal" style="display:none">
+
+  <!-- Cabecera -->
+  <header>
+    <div>
+      <div class="cabecera-titulo">Monitor Postural y Visual</div>
+      <div class="cabecera-subtitulo" id="cabecera-rol">Cargando...</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="indicador-conexion">
+        <div class="punto-conexion" id="punto-conexion"></div>
+        <span id="texto-conexion">Sin sensor</span>
+      </div>
+      <button onclick="accionCerrarSesion()"
+        style="background:none;border:none;color:var(--texto-secundario);font-size:0.75rem;font-family:inherit;cursor:pointer;">
+        Salir
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenido -->
+  <main>
+
+    <!-- ===== PANTALLAS DEL NINO ===== -->
+
+    <!-- MONITOREO -->
+    <section class="pantalla activa" id="pantalla-monitoreo">
+      <div class="estado-principal normal" id="panel-estado">
+        <div class="estado-etiqueta"    id="estado-etiqueta">Todo bien</div>
+        <div class="estado-mensaje"     id="estado-mensaje">Postura y distancia correctas</div>
+        <div class="estado-descripcion" id="estado-descripcion">Inicia una sesión para comenzar el monitoreo.</div>
+      </div>
+
+      <div id="sesion-activa-label" style="display:none;align-items:center;gap:8px;margin-bottom:14px;font-size:0.78rem;color:var(--verde);">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--verde);animation:pulso-riesgo 1.5s infinite"></div>
+        Sesión en curso — guardando datos
+      </div>
+
+      <div class="fila-mediciones">
+        <div class="medicion bien" id="medicion-angulo">
+          <div class="medicion-valor" id="valor-angulo">0</div>
+          <div class="medicion-unidad">grados</div>
+          <div class="medicion-etiqueta">Inclinación del cuello</div>
+        </div>
+        <div class="medicion" id="medicion-distancia">
+          <div class="medicion-valor" id="valor-distancia">--</div>
+          <div class="medicion-unidad">cm</div>
+          <div class="medicion-etiqueta">Distancia a la pantalla</div>
+        </div>
+      </div>
+
+      <div class="barra-angulo-contenedor">
+        <div class="tarjeta-titulo">Nivel de inclinación del cuello</div>
+        <div class="barra-angulo-pista">
+          <div class="barra-zona-precaucion"></div>
+          <div class="barra-zona-riesgo"></div>
+          <div class="barra-angulo-relleno" id="barra-angulo-relleno" style="width:0%"></div>
+        </div>
+        <div class="barra-angulo-marcas">
+          <span>0°</span>
+          <span style="color:var(--amarillo)">30°</span>
+          <span style="color:var(--rojo)">45°</span>
+          <span>60°</span>
+        </div>
+      </div>
+
+      <div class="tarjeta">
+        <div class="tarjeta-titulo">Camara frontal</div>
+        <div class="camara-contenedor" id="contenedor-camara" style="display:none">
+          <video id="vista-camara" autoplay muted playsinline></video>
+          <canvas id="canvas-camara"></canvas>
+          <div class="camara-estado" id="camara-estado-texto">Buscando rostro...</div>
+        </div>
+        <div class="camara-contenedor camara-desactivada" id="sin-camara">
+          <div style="font-size:2rem"></div>
+          <span>Camara desactivada</span>
+        </div>
+        <button class="btn-accion btn-secundario" id="btn-iniciar-camara" style="margin-top:12px;margin-bottom:0">
+          Activar camara
+        </button>
+      </div>
+
+      <button class="btn-accion btn-primario"  id="btn-iniciar-sesion">Iniciar sesión</button>
+      <button class="btn-accion btn-peligro"   id="btn-detener-sesion" style="display:none">Terminar sesión</button>
+
+      <div class="seccion-titulo" style="margin-top:24px">Sensor de postura</div>
+      <button class="btn-accion btn-primario"   id="btn-conectar-sensor">Conectar sensor</button>
+      <button class="btn-accion btn-secundario" id="btn-simulacion">Probar sin sensor</button>
+    </section>
+
+    <!-- HISTORIAL (nino) -->
+    <section class="pantalla" id="pantalla-historial">
+      <div class="seccion-titulo">Esta semana</div>
+      <div class="tarjeta">
+        <div class="fila-mediciones" style="margin-bottom:0">
+          <div class="medicion">
+            <div class="medicion-valor" id="resumen-total-sesiones" style="font-size:1.8rem">0</div>
+            <div class="medicion-etiqueta">sesiones</div>
+          </div>
+          <div class="medicion">
+            <div class="medicion-valor" id="resumen-total-minutos" style="font-size:1.8rem">0</div>
+            <div class="medicion-unidad">min</div>
+            <div class="medicion-etiqueta">tiempo total</div>
+          </div>
+          <div class="medicion">
+            <div class="medicion-valor" id="resumen-total-alertas" style="font-size:1.8rem">0</div>
+            <div class="medicion-etiqueta">alertas</div>
+          </div>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <div class="tarjeta-titulo">Minutos de uso por día</div>
+        <div class="grafico-barras" id="grafico-semanal"></div>
+      </div>
+      <div class="seccion-titulo">Sesiones anteriores</div>
+      <ul class="lista-sesiones" id="lista-sesiones">
+        <div class="cargando-txt">Cargando historial...</div>
+      </ul>
+    </section>
+
+    <!-- AJUSTES -->
+    <section class="pantalla" id="pantalla-configuracion">
+      <div class="seccion-titulo">Calibración de la cámara</div>
+      <div class="tarjeta">
+        <p style="font-size:0.82rem;color:var(--texto-secundario);line-height:1.6;margin-bottom:14px;">
+          El sistema calcula la distancia entre el rostro y la pantalla usando la cámara frontal.
+          Si la distancia que muestra la app no coincide con la distancia real, ajusta este número.
+        </p>
+        <div class="config-fila">
+          <div>
+            <div class="config-etiqueta">Valor de calibración</div>
+            <div class="config-desc">Número en píxeles (por defecto: 620)</div>
+          </div>
+          <input class="config-input" type="number" id="config-focal" value="620" min="200" max="1500">
+        </div>
+        <button class="btn-accion btn-secundario" style="margin-top:12px;margin-bottom:0" onclick="guardarLongitudFocal()">
+          Guardar calibración
+        </button>
+      </div>
+
+      <div class="seccion-titulo">Umbrales del sistema</div>
+      <div class="tarjeta">
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Postura normal</div><div class="config-desc">Menos de 30 grados</div></div>
+          <span class="pastilla bien">Sin alerta</span>
+        </div>
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Postura de cuidado</div><div class="config-desc">30-44 grados por mas de 3 min</div></div>
+          <span class="pastilla cuidado">Aviso</span>
+        </div>
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Postura de riesgo</div><div class="config-desc">45 grados o mas por 5 seg</div></div>
+          <span class="pastilla peligro-p">Alerta</span>
+        </div>
+        <div style="height:1px;background:var(--borde);margin:12px 0"></div>
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Distancia segura</div><div class="config-desc">Mas de 30 cm</div></div>
+          <span class="pastilla bien">Sin alerta</span>
+        </div>
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Distancia de cuidado</div><div class="config-desc">20-30 cm por mas de 2 min</div></div>
+          <span class="pastilla cuidado">Aviso</span>
+        </div>
+        <div class="config-fila">
+          <div><div class="config-etiqueta">Distancia de riesgo</div><div class="config-desc">Menos de 20 cm por 10 seg</div></div>
+          <span class="pastilla peligro-p">Alerta</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TUTOR: pantalla especial solo visible para tutores -->
+    <section class="pantalla" id="pantalla-tutor">
+      <div class="seccion-titulo">Código para el niño</div>
+      <div class="tarjeta">
+        <p style="font-size:0.82rem;color:var(--texto-secundario);margin-bottom:4px;">
+          Proporcionar este código al niño para que pueda vincularse. Cada niño necesita su propio código.
+        </p>
+        <div class="codigo-grande" id="codigo-tutor-actual">------</div>
+        <button class="btn-accion btn-secundario" style="margin-bottom:0" onclick="generarNuevoCodigo()">
+          Generar nuevo código
+        </button>
+      </div>
+
+      <div class="seccion-titulo">Niños vinculados</div>
+      <div id="lista-ninos-tutor">
+        <div class="cargando-txt">Cargando...</div>
+      </div>
+
+      <div class="seccion-titulo">Alertas recientes</div>
+      <div id="lista-alertas-tutor">
+        <div class="cargando-txt">Cargando...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Navegacion (se ajusta según rol) -->
+  <nav id="nav-principal">
+    <!-- Se llena dinámicamente según el rol -->
+  </nav>
+
+</div><!-- fin app-principal -->
+
+<!-- Alerta emergente -->
+<div class="alerta-overlay" id="alerta-overlay">
+  <div class="alerta-caja" id="alerta-caja">
+    <span class="alerta-icono" id="alerta-icono">⚠️</span>
+    <div class="alerta-titulo" id="alerta-titulo">Alerta</div>
+    <p class="alerta-texto" id="alerta-texto"></p>
+    <button class="alerta-btn-cerrar" id="btn-cerrar-alerta">Entendido</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-mensaje" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--fondo-elevado);border:1px solid var(--borde);color:var(--texto-principal);padding:10px 18px;border-radius:99px;font-size:0.82rem;font-weight:500;z-index:300;white-space:nowrap;max-width:90vw;text-align:center;transition:opacity 0.3s;"></div>
+
+<!-- Scripts -->
+<script src="/js/api.js"></script>
+<script src="/js/alertas.js"></script>
+<script src="/js/bluetooth.js"></script>
+<script src="/js/camara.js"></script>
+<script src="/js/app.js"></script>
+
+</body>
+</html>
